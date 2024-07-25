@@ -65,6 +65,8 @@ static void print_insn_detail(cs_insn *ins)
 				break;
 		}
 
+		printf("\t\toperands[%u].size: %u\n", i, op->size);
+
 		switch(op->access) {
 			default:
 				break;

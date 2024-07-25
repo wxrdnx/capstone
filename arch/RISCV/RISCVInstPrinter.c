@@ -25,6 +25,7 @@
 #include "../../MCRegisterInfo.h"
 #include "../../utils.h"
 #include "../../Mapping.h"
+#include "../../cs_simple_types.h"
 #include "RISCVMapping.h"
 
 //#include "RISCVDisassembler.h"
@@ -229,6 +230,149 @@ static void fixDetailOfEffectiveAddr(MCInst *MI)
 			break;
 		}
 	}
+
+    // For memory instructions, the size depends on the instruction itself.
+    // e.g. The sb instruction takes 1 byte wide, sh takes 2 bytes, sw takes 4 bytes, etc.
+    switch (id) {
+        case RISCV_INS_LB:
+        case RISCV_INS_LBU:
+        case RISCV_INS_SB: {
+			RISCV_get_detail_op(MI, -1)->size = 1;
+            break;
+        }
+        case RISCV_INS_LH:
+        case RISCV_INS_LHU:
+        case RISCV_INS_SH: {
+			RISCV_get_detail_op(MI, -1)->size = 2;
+            break;
+        }
+        case RISCV_INS_C_FLW:
+        case RISCV_INS_C_FLWSP:
+        case RISCV_INS_C_FSW:
+        case RISCV_INS_C_FSWSP:
+        case RISCV_INS_C_LW:
+        case RISCV_INS_C_LWSP:
+        case RISCV_INS_C_SW:
+        case RISCV_INS_C_SWSP:
+        case RISCV_INS_FLW:
+        case RISCV_INS_FSW:
+        case RISCV_INS_LR_W:
+        case RISCV_INS_LR_W_AQ:
+        case RISCV_INS_LR_W_AQ_RL:
+        case RISCV_INS_LR_W_RL:
+        case RISCV_INS_LW:
+        case RISCV_INS_LWU:
+        case RISCV_INS_SC_W:
+        case RISCV_INS_SC_W_AQ:
+        case RISCV_INS_SC_W_AQ_RL:
+        case RISCV_INS_SC_W_RL:
+        case RISCV_INS_SW: {
+			RISCV_get_detail_op(MI, -1)->size = 4;
+            break;
+        }
+        case RISCV_INS_C_FLD:
+        case RISCV_INS_C_FLDSP:
+        case RISCV_INS_C_FSD:
+        case RISCV_INS_C_FSDSP:
+        case RISCV_INS_C_LD:
+        case RISCV_INS_C_LDSP:
+        case RISCV_INS_C_SD:
+        case RISCV_INS_C_SDSP:
+        case RISCV_INS_FLD:
+        case RISCV_INS_FSD:
+        case RISCV_INS_LD:
+        case RISCV_INS_LR_D:
+        case RISCV_INS_LR_D_AQ:
+        case RISCV_INS_LR_D_AQ_RL:
+        case RISCV_INS_LR_D_RL:
+        case RISCV_INS_SC_D:
+        case RISCV_INS_SC_D_AQ:
+        case RISCV_INS_SC_D_AQ_RL:
+        case RISCV_INS_SC_D_RL:
+        case RISCV_INS_SD: {
+			RISCV_get_detail_op(MI, -1)->size = 8;
+            break;
+        }
+        case RISCV_INS_AMOSWAP_W:
+        case RISCV_INS_AMOSWAP_W_AQ:
+        case RISCV_INS_AMOSWAP_W_AQ_RL:
+        case RISCV_INS_AMOSWAP_W_RL:
+        case RISCV_INS_AMOADD_W:
+        case RISCV_INS_AMOADD_W_AQ:
+        case RISCV_INS_AMOADD_W_AQ_RL:
+        case RISCV_INS_AMOADD_W_RL:
+        case RISCV_INS_AMOXOR_W:
+        case RISCV_INS_AMOXOR_W_AQ:
+        case RISCV_INS_AMOXOR_W_AQ_RL:
+        case RISCV_INS_AMOXOR_W_RL:
+        case RISCV_INS_AMOAND_W:
+        case RISCV_INS_AMOAND_W_AQ:
+        case RISCV_INS_AMOAND_W_AQ_RL:
+        case RISCV_INS_AMOAND_W_RL:
+        case RISCV_INS_AMOOR_W:
+        case RISCV_INS_AMOOR_W_AQ:
+        case RISCV_INS_AMOOR_W_AQ_RL:
+        case RISCV_INS_AMOOR_W_RL:
+        case RISCV_INS_AMOMIN_W:
+        case RISCV_INS_AMOMIN_W_AQ:
+        case RISCV_INS_AMOMIN_W_AQ_RL:
+        case RISCV_INS_AMOMIN_W_RL:
+        case RISCV_INS_AMOMAX_W:
+        case RISCV_INS_AMOMAX_W_AQ:
+        case RISCV_INS_AMOMAX_W_AQ_RL:
+        case RISCV_INS_AMOMAX_W_RL:
+        case RISCV_INS_AMOMINU_W:
+        case RISCV_INS_AMOMINU_W_AQ:
+        case RISCV_INS_AMOMINU_W_AQ_RL:
+        case RISCV_INS_AMOMINU_W_RL:
+        case RISCV_INS_AMOMAXU_W:
+        case RISCV_INS_AMOMAXU_W_AQ:
+        case RISCV_INS_AMOMAXU_W_AQ_RL:
+        case RISCV_INS_AMOMAXU_W_RL:
+        case RISCV_INS_AMOSWAP_D:
+        case RISCV_INS_AMOSWAP_D_AQ:
+        case RISCV_INS_AMOSWAP_D_AQ_RL:
+        case RISCV_INS_AMOSWAP_D_RL:
+        case RISCV_INS_AMOADD_D:
+        case RISCV_INS_AMOADD_D_AQ:
+        case RISCV_INS_AMOADD_D_AQ_RL:
+        case RISCV_INS_AMOADD_D_RL:
+        case RISCV_INS_AMOXOR_D:
+        case RISCV_INS_AMOXOR_D_AQ:
+        case RISCV_INS_AMOXOR_D_AQ_RL:
+        case RISCV_INS_AMOXOR_D_RL:
+        case RISCV_INS_AMOAND_D:
+        case RISCV_INS_AMOAND_D_AQ:
+        case RISCV_INS_AMOAND_D_AQ_RL:
+        case RISCV_INS_AMOAND_D_RL:
+        case RISCV_INS_AMOOR_D:
+        case RISCV_INS_AMOOR_D_AQ:
+        case RISCV_INS_AMOOR_D_AQ_RL:
+        case RISCV_INS_AMOOR_D_RL:
+        case RISCV_INS_AMOMIN_D:
+        case RISCV_INS_AMOMIN_D_AQ:
+        case RISCV_INS_AMOMIN_D_AQ_RL:
+        case RISCV_INS_AMOMIN_D_RL:
+        case RISCV_INS_AMOMAX_D:
+        case RISCV_INS_AMOMAX_D_AQ:
+        case RISCV_INS_AMOMAX_D_AQ_RL:
+        case RISCV_INS_AMOMAX_D_RL:
+        case RISCV_INS_AMOMINU_D:
+        case RISCV_INS_AMOMINU_D_AQ:
+        case RISCV_INS_AMOMINU_D_AQ_RL:
+        case RISCV_INS_AMOMINU_D_RL:
+        case RISCV_INS_AMOMAXU_D:
+        case RISCV_INS_AMOMAXU_D_AQ:
+        case RISCV_INS_AMOMAXU_D_AQ_RL:
+        case RISCV_INS_AMOMAXU_D_RL: {
+            // Depends on the current mode, so no need to modify
+            break;
+        }
+        default: {
+			CS_ASSERT(0 && "id is not a RISC-V memory instruction");
+            break;
+        }
+    }
 	return;
 }
 

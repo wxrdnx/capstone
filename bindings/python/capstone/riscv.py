@@ -23,6 +23,7 @@ class RISCVOp(ctypes.Structure):
         ('type', ctypes.c_uint),
         ('value', RISCVOpValue),
         ('access', ctypes.c_uint8),
+        ('size', ctypes.c_uint8),
     )
 
     @property

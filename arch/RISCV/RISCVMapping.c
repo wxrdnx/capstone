@@ -159,12 +159,36 @@ void RISCV_add_cs_detail(MCInst *MI, unsigned OpNum) {
 		RISCV_get_detail_op(MI, 0)->type = RISCV_OP_IMM;
 		RISCV_get_detail_op(MI, 0)->imm = MCInst_getOpVal(MI, OpNum);
 		RISCV_get_detail_op(MI, 0)->access = map_get_op_access(MI, OpNum);
+		// The size of immediate value in RISC-V is determined by the current mode (MI->csh->mode)
+		if (MI->csh->mode & CS_MODE_RISCV64) {
+			RISCV_get_detail_op(MI, 0)->size = 8;
+		}
+		else {
+			// The default will be 32 bits even if only CS_MODE_RISCVC is specified
+			RISCV_get_detail_op(MI, 0)->size = 4;
+		}
 		RISCV_inc_op_count(MI);
 	}
 	else if (op_type == CS_OP_REG) {
 		RISCV_get_detail_op(MI, 0)->type = RISCV_OP_REG;
 		RISCV_get_detail_op(MI, 0)->reg = MCInst_getOpVal(MI, OpNum);
 		RISCV_get_detail_op(MI, 0)->access = map_get_op_access(MI, OpNum);
+
+		// For non-memory instructions, the size is determined by the current mode (MI->csh->mode)
+        // Note that for instructions ending in w (e.g. addw, addiw), the register size is still 64 bits
+        // instead of 32 bits due to sign extension.
+
+        if (MI->csh->mode & CS_MODE_RISCV64) {
+            RISCV_get_detail_op(MI, 0)->size = 8;
+        }
+        else {
+            // The default will be 32 bits even if only CS_MODE_RISCVC is specified
+            RISCV_get_detail_op(MI, 0)->size = 4;
+        }
+
+		// For memory instructions, the size depends on the instruction itself.
+        // e.g. The sb instruction takes 1 byte wide, sh takes 2 bytes, sw takes 4 bytes, etc.
+        // This will be fixed in fixDetailOfEffectiveAddr
 		RISCV_inc_op_count(MI);
 	}
 	else {
